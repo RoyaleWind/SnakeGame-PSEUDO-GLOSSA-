@@ -1,0 +1,266 @@
+ΠΡΟΓΡΑΜΜΑ α
+ΜΕΤΑΒΛΗΤΕΣ
+  ΑΚΕΡΑΙΕΣ: timey, timex, tries
+  ΑΚΕΡΑΙΕΣ: oldpy, oldpx
+  ΑΚΕΡΑΙΕΣ: py, px, moves
+  ΑΚΕΡΑΙΕΣ: y, x, z, score, dead, zf
+  ΑΚΕΡΑΙΕΣ: data[6, 6], trail[36, 3] 
+  ΑΚΕΡΑΙΕΣ: apple_y, apple_x
+  ΛΟΓΙΚΕΣ: apple
+  ΧΑΡΑΚΤΗΡΕΣ: key
+ΑΡΧΗ
+  apple <- ΨΕΥΔΗΣ
+  moves <- 0
+  dead <- 0                                                 !!! initilizing game
+  score <- 0
+
+  ΓΙΑ z ΑΠΟ 1 ΜΕΧΡΙ 36
+    trail[z, 3] <- 0
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+  ΓΙΑ y ΑΠΟ 1 ΜΕΧΡΙ 6
+    ΓΙΑ x ΑΠΟ 1 ΜΕΧΡΙ 6
+      data[y, x] <- 0
+    ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+  py <- 2
+  px <- 2
+  data[2, 2] <- 1
+  data[6, 2] <- 3
+  ΚΑΛΕΣΕ render(data, score, moves, trail) 
+                                                        !!! initilizing game end
+
+  ΟΣΟ dead <> 1 ΕΠΑΝΑΛΑΒΕ
+    ΔΙΑΒΑΣΕ key
+    ΑΝ key = "w" Η key = "W" ΤΟΤΕ
+      oldpy <- py
+      oldpx <- px
+      moves <- moves + 1
+      data[py, px] <- 0
+      py <- py - 1
+
+      ΑΝ py > 6 Η py < 1 Η is_trail(trail, py, px) ΤΟΤΕ
+        dead <- 1
+      ΑΛΛΙΩΣ
+        ΑΝ find_apple(data, py, px) ΤΟΤΕ
+          score <- score + 1
+          apple <- ΑΛΗΘΗΣ
+        ΤΕΛΟΣ_ΑΝ
+
+        data[py, px] <- 1
+      ΤΕΛΟΣ_ΑΝ
+
+    ΑΛΛΙΩΣ_ΑΝ key = "a" Η key = "A" ΤΟΤΕ
+      oldpy <- py
+      oldpx <- px
+      moves <- moves + 1
+      data[py, px] <- 0
+      px <- px - 1
+      ΑΝ px > 6 Η px < 1 Η is_trail(trail, py, px) ΤΟΤΕ
+        dead <- 1
+      ΑΛΛΙΩΣ
+        ΑΝ find_apple(data, py, px) ΤΟΤΕ
+          score <- score + 1
+          apple <- ΑΛΗΘΗΣ
+        ΤΕΛΟΣ_ΑΝ
+        data[py, px] <- 1
+      ΤΕΛΟΣ_ΑΝ
+
+    ΑΛΛΙΩΣ_ΑΝ key = "s" Η key = "S" Η is_trail(trail, py, px) ΤΟΤΕ
+      oldpy <- py
+      oldpx <- px
+      moves <- moves + 1
+      data[py, px] <- 0
+      py <- py + 1
+      ΑΝ py > 6 Η py < 1 ΤΟΤΕ
+        dead <- 1
+      ΑΛΛΙΩΣ
+        ΑΝ find_apple(data, py, px) ΤΟΤΕ
+          apple <- ΑΛΗΘΗΣ
+          score <- score + 1
+        ΤΕΛΟΣ_ΑΝ
+        data[py, px] <- 1
+
+      ΤΕΛΟΣ_ΑΝ
+    ΑΛΛΙΩΣ_ΑΝ key = "d" Η key = "D" Η is_trail(trail, py, px) ΤΟΤΕ
+      oldpy <- py
+      oldpx <- px
+      moves <- moves + 1
+      data[py, px] <- 0
+      px <- px + 1
+      ΑΝ px > 6 Η px < 1 Η is_trail(trail, py, px) ΤΟΤΕ
+        dead <- 1
+      ΑΛΛΙΩΣ
+        ΑΝ find_apple(data, py, px) ΤΟΤΕ
+          apple <- ΑΛΗΘΗΣ
+          score <- score + 1
+        ΤΕΛΟΣ_ΑΝ
+        data[py, px] <- 1
+      ΤΕΛΟΣ_ΑΝ
+    ΤΕΛΟΣ_ΑΝ
+
+    ΑΝ apple ΤΟΤΕ
+      trail[score, 3] <- 1
+    ΤΕΛΟΣ_ΑΝ
+
+    ΑΝ score > 0 ΤΟΤΕ
+      ΑΝ score > 1 ΤΟΤΕ
+        ΓΙΑ z ΑΠΟ score ΜΕΧΡΙ 2 ΜΕ_ΒΗΜΑ -1
+          zf <- z - 1
+          trail[z, 1] <- trail[zf, 1] 
+          trail[z, 2] <- trail[zf, 2] 
+        ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+      ΤΕΛΟΣ_ΑΝ
+      trail[1, 1] <- oldpy
+      trail[1, 2] <- oldpx
+    ΤΕΛΟΣ_ΑΝ
+
+    ΑΝ apple ΤΟΤΕ
+      trail[score, 3] <- 1
+      timey <- 0
+      timex <- 0
+      tries <- 0
+      ΟΣΟ apple ΕΠΑΝΑΛΑΒΕ
+        tries <- tries + 1
+        timey <- 6 mod moves + timey
+        timex <- 6 mod score + timex
+        ΑΝ timey < 0 Η timey > 6 Η timey = 0 ΤΟΤΕ
+          timey <- 1
+        ΤΕΛΟΣ_ΑΝ
+        ΑΝ timex < 0 Η timex > 6 Η timex = 0 ΤΟΤΕ
+          timex <- 1
+        ΤΕΛΟΣ_ΑΝ
+        ΑΝ is_clean(data, trail, timey, timex) ΤΟΤΕ
+          data[timey, timex] <- 3
+          apple <- ΨΕΥΔΗΣ
+        ΤΕΛΟΣ_ΑΝ
+
+        ΑΝ tries > 50 ΤΟΤΕ
+          ΓΙΑ y ΑΠΟ 1 ΜΕΧΡΙ 6
+            ΓΙΑ x ΑΠΟ 1 ΜΕΧΡΙ 6
+              ΑΝ is_clean(data, trail, y, x) ΚΑΙ apple ΤΟΤΕ
+                apple <- ΨΕΥΔΗΣ
+                data[y, x] <- 3
+              ΤΕΛΟΣ_ΑΝ
+            ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+          ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+        ΤΕΛΟΣ_ΑΝ
+      ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+    ΤΕΛΟΣ_ΑΝ
+
+
+    ΚΑΛΕΣΕ render(data, score, moves, trail) 
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+
+
+ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ α
+
+!! -------------------------------
+ΣΥΝΑΡΤΗΣΗ is_clean(data, trail, targety, targetx): ΛΟΓΙΚΗ
+ΜΕΤΑΒΛΗΤΕΣ
+  ΑΚΕΡΑΙΕΣ: trail[36, 3], data[6, 6], clean, y, x, z, targety, targetx
+ΑΡΧΗ
+  clean <- 0
+  ΑΝ data[targety, targetx] <> 0 ΤΟΤΕ
+    clean <- 1
+  ΤΕΛΟΣ_ΑΝ
+
+
+
+  ΑΝ clean = 1 ΤΟΤΕ
+    is_clean <- ΨΕΥΔΗΣ
+  ΑΛΛΙΩΣ
+    is_clean <- ΑΛΗΘΗΣ
+  ΤΕΛΟΣ_ΑΝ
+
+ΤΕΛΟΣ_ΣΥΝΑΡΤΗΣΗΣ
+!! -------------------------------
+ΣΥΝΑΡΤΗΣΗ is_trail(trail, py, px): ΛΟΓΙΚΗ
+ΜΕΤΑΒΛΗΤΕΣ
+  ΑΚΕΡΑΙΕΣ: py, px, trail[36, 3], z, stat
+ΑΡΧΗ
+  stat <- 0
+  ΓΙΑ z ΑΠΟ 1 ΜΕΧΡΙ 36
+    ΑΝ trail[z, 3] = 1 ΤΟΤΕ
+      ΑΝ trail[z, 1] = py ΚΑΙ trail[z, 2] = px ΤΟΤΕ
+        stat <- 1
+      ΤΕΛΟΣ_ΑΝ
+    ΤΕΛΟΣ_ΑΝ
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+  ΑΝ stat = 0 ΤΟΤΕ
+    is_trail <- ΨΕΥΔΗΣ
+  ΑΛΛΙΩΣ
+    is_trail <- ΑΛΗΘΗΣ
+  ΤΕΛΟΣ_ΑΝ
+
+ΤΕΛΟΣ_ΣΥΝΑΡΤΗΣΗΣ
+!! -------------------------------
+ΣΥΝΑΡΤΗΣΗ find_apple(data, py, px): ΛΟΓΙΚΗ
+ΜΕΤΑΒΛΗΤΕΣ
+  ΑΚΕΡΑΙΕΣ: py, px, data[6, 6] 
+ΑΡΧΗ
+  ΑΝ data[py, px] = 3 ΤΟΤΕ
+    find_apple <- ΑΛΗΘΗΣ
+  ΑΛΛΙΩΣ
+    find_apple <- ΨΕΥΔΗΣ
+  ΤΕΛΟΣ_ΑΝ
+ΤΕΛΟΣ_ΣΥΝΑΡΤΗΣΗΣ
+
+
+!!---------------------------------------
+ΔΙΑΔΙΚΑΣΙΑ render(data, score, moves, trail) 
+ΜΕΤΑΒΛΗΤΕΣ
+  ΑΚΕΡΑΙΕΣ: ty, tx
+  ΑΚΕΡΑΙΕΣ: y, x, z, score, moves
+  ΑΚΕΡΑΙΕΣ: data[6, 6], trail[36, 3] 
+ΑΡΧΗ
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ "                            "
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ " ----------------------------------------------------- "
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ
+  ΓΡΑΨΕ " ©RoayleWind | https://github.com/RoyaleWind"
+
+
+  ΓΙΑ y ΑΠΟ 1 ΜΕΧΡΙ 6
+    ΓΙΑ x ΑΠΟ 1 ΜΕΧΡΙ 6
+      ΑΝ data[y, x] = 2 ΤΟΤΕ
+        data[y, x] <- 0
+      ΤΕΛΟΣ_ΑΝ
+    ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+  ΓΙΑ z ΑΠΟ 1 ΜΕΧΡΙ 36
+    ΑΝ trail[z, 3] = 1 ΤΟΤΕ
+      ty <- trail[z, 1] 
+      tx <- trail[z, 2] 
+      data[ty, tx] <- 2
+    ΤΕΛΟΣ_ΑΝ
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+
+  ΓΙΑ y ΑΠΟ 1 ΜΕΧΡΙ 6
+    ΓΙΑ x ΑΠΟ 1 ΜΕΧΡΙ 6
+      ΑΝ data[y, x] = 0 ΤΟΤΕ
+        ΓΡΑΨΕ "🟦", " "
+      ΑΛΛΙΩΣ_ΑΝ data[y, x] = 1 ΤΟΤΕ
+        ΓΡΑΨΕ "😀", " "
+      ΑΛΛΙΩΣ_ΑΝ data[y, x] = 2 ΤΟΤΕ
+        ΓΡΑΨΕ "🔵", " "
+      ΑΛΛΙΩΣ_ΑΝ data[y, x] = 3 ΤΟΤΕ
+        ΓΡΑΨΕ "🍎", " "
+      ΤΕΛΟΣ_ΑΝ
+    ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+    ΓΡΑΨΕ
+  ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ
+
+
+
+  ΓΡΑΨΕ "Score: ", score, " Moves:", moves
+  ΓΡΑΨΕ "Controls: [W]:up [A]:left [S]:down [D]:right"
+ΤΕΛΟΣ_ΔΙΑΔΙΚΑΣΙΑΣ 
